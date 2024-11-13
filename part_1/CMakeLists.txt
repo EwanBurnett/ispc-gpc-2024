@@ -8,10 +8,16 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4)
   set(CMAKE_ISPC_FLAGS "--arch=x86")
 endif()
 
+if("${CMAKE_SYSTEM_NAME};${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "Darwin;arm64")
+  set(CMAKE_ISPC_INSTRUCTION_SETS "neon-i32x4")
+else()
+  set(CMAKE_ISPC_INSTRUCTION_SETS "sse2-i32x4;sse4-i32x4;avx1-i32x8;avx2-i32x8;avx512spr-x16")
+endif()
+
 add_library(part_1 OBJECT part_1.ispc)
 set_target_properties(part_1 PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_executable(part_1_benchmark "part_1_benchmark.cpp")
 target_link_libraries(part_1_benchmark PRIVATE part_1 picobench::picobench)
-#set_target_properties(part_1_benchmark PROPERTIES FOLDER part_1)
+set_target_properties(part_1_benchmark PROPERTIES FOLDER part_1)
 

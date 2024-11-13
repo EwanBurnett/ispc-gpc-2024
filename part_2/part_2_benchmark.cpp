@@ -112,7 +112,7 @@ namespace
 	}
 }
 
-static void dot_CPP(picobench::state& s)
+static void dot_CPP_Serial(picobench::state& s)
 {
 	vector<float> output(0.0f, s.iterations());
 	vector<Vector3> vec;
@@ -128,100 +128,149 @@ static void dot_CPP(picobench::state& s)
 	for (int i = 0; i < s.iterations(); ++i)
 	{
 		DotProductCpp(output, vec, s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
 
 	s.stop_timer(); // Manual stop
 }
-PICOBENCH(dot_CPP);
+PICOBENCH(dot_CPP_Serial);
 
-/*
-
-BENCHMARK_DEFINE_F(Vector3_SSE, vhaddps)(benchmark::State& st)
+static void dot_CPP_vhaddps(picobench::state& s)
 {
-	size_t array_size = (size_t)st.range(0);
+	vector<float> output(0.0f, s.iterations());
+	vector<Vector3_SSE> vec;
 
-	for (auto _ : st)
+	output.resize(s.iterations());
+	vec.reserve(s.iterations());
+
+	InitializeAoS_SSE(vec, s.iterations());
+
+	s.start_timer();
+
+	#pragma loop(no_vector)
+	for (int i = 0; i < s.iterations(); ++i)
 	{
-		DotProduct_HADD(m_squared_length, m_v, array_size);
-		benchmark::DoNotOptimize(m_squared_length);
+		Types::DotProduct_HADD(output, vec.data(), s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
+
+	s.stop_timer(); // Manual stop
 }
+PICOBENCH(dot_CPP_vhaddps);
 
-BENCHMARK_DEFINE_F(Vector3_SSE, vdpps)(benchmark::State& st)
+static void dot_CPP_vddps(picobench::state& s)
 {
-	size_t array_size = (size_t)st.range(0);
+	vector<float> output(0.0f, s.iterations());
+	vector<Vector3_SSE> vec;
 
-	for (auto _ : st)
+	output.resize(s.iterations());
+	vec.reserve(s.iterations());
+
+	InitializeAoS_SSE(vec, s.iterations());
+
+	s.start_timer();
+
+	#pragma loop(no_vector)
+	for (int i = 0; i < s.iterations(); ++i)
 	{
-		DotProduct_DPPS(m_squared_length, m_v, array_size);
-		benchmark::DoNotOptimize(m_squared_length);
+		Types::DotProduct_DPPS(output, vec.data(), s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
+
+	s.stop_timer(); // Manual stop
 }
+PICOBENCH(dot_CPP_vddps);
 
-BENCHMARK_DEFINE_F(Vector3_SSE, vmul_shuffle_add)(benchmark::State& st)
+static void dot_CPP_vmul_shuffle_add(picobench::state& s)
 {
-	size_t array_size = (size_t)st.range(0);
+	vector<float> output(0.0f, s.iterations());
+	vector<Vector3_SSE> vec;
 
-	for (auto _ : st)
+	output.resize(s.iterations());
+	vec.reserve(s.iterations());
+
+	InitializeAoS_SSE(vec, s.iterations());
+
+	s.start_timer();
+
+	#pragma loop(no_vector)
+	for (int i = 0; i < s.iterations(); ++i)
 	{
-		DotProduct_SHUFFLE(m_squared_length, m_v, array_size);
-		benchmark::DoNotOptimize(m_squared_length);
+		Types::DotProduct_SHUFFLE(output, vec.data(), s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
+
+	s.stop_timer(); // Manual stop
 }
+PICOBENCH(dot_CPP_vmul_shuffle_add);
 
-BENCHMARK_DEFINE_F(Vector3, ispc_AoS)(benchmark::State& st)
+
+static void dot_ispc_AoS(picobench::state& s)
 {
-	size_t array_size = (size_t)st.range(0);
+	vector<float> output(0.0f, s.iterations());
+	vector<Vector3> vec;
 
-	for (auto _ : st)
+	output.resize(s.iterations());
+	vec.reserve(s.iterations());
+
+	InitializeAoS(vec, s.iterations());
+
+	s.start_timer();
+
+	#pragma loop(no_vector)
+	for (int i = 0; i < s.iterations(); ++i)
 	{
-		ispc::DotProductAoS(m_squared_length.data(), (ispc::Vector3*) m_v.data(), array_size);
-		benchmark::DoNotOptimize(m_squared_length);
+		ispc::DotProductAoS(output.data(), (ispc::Vector3*) vec.data(), s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
+
+	s.stop_timer(); // Manual stop
 }
+PICOBENCH(dot_ispc_AoS);
 
-BENCHMARK_DEFINE_F(Vector3SoA, ispc_SoA)(benchmark::State& st)
+static void dot_ispc_SoA(picobench::state& s)
 {
-	size_t array_size = (size_t)st.range(0);
+	vector<float> output(0.0f, s.iterations());
+	vector<float> x;
+	vector<float> y;
+	vector<float> z;
 
-	for (auto _ : st)
+	output.resize(s.iterations());
+	x.reserve(s.iterations());
+	y.reserve(s.iterations());
+	z.reserve(s.iterations());
+
+	InitializeSoA(x, y, z, s.iterations());
+	s.start_timer();
+
+	#pragma loop(no_vector)
+	for (int i = 0; i < s.iterations(); ++i)
 	{
-		ispc::DotProductSoA(m_squared_length.data(), m_x.data(), m_y.data(), m_z.data(), array_size);
-		benchmark::DoNotOptimize(m_squared_length);
+		ispc::DotProductSoA(output.data(), x.data(), y.data(), z.data(), s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
+
+	s.stop_timer(); // Manual stop
 }
+PICOBENCH(dot_ispc_SoA);
 
-BENCHMARK_DEFINE_F(Vector3AoSoA, ispc_AoSoA)(benchmark::State& st)
+static void dot_ispc_AoSoA(picobench::state& s)
 {
-	size_t array_size = (size_t)st.range(0);
+	vector<float> output(0.0f, s.iterations());
+	vector<float> vec;
 
-	for (auto _ : st)
+	output.resize(s.iterations());
+
+	InitializeAoSoA(vec, s.iterations());
+	s.start_timer();
+
+	#pragma loop(no_vector)
+	for (int i = 0; i < s.iterations(); ++i)
 	{
-		ispc::DotProductAoSoA(m_squared_length.data(), (ispc::Vector3AoSoA*)m_v.data(), array_size);
-		benchmark::DoNotOptimize(m_squared_length);
+		ispc::DotProductAoSoA(output.data(), vec.data(), s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
+
+	s.stop_timer(); // Manual stop
 }
-
-BENCHMARK_REGISTER_F(Vector3, Cpp)->RangeMultiplier(2)->Range(8 << 12, 8 << 23);
-BENCHMARK_REGISTER_F(Vector3_SSE, vhaddps)->RangeMultiplier(2)->Range(8 << 12, 8 << 23);
-BENCHMARK_REGISTER_F(Vector3_SSE, vdpps)->RangeMultiplier(2)->Range(8 << 12, 8 << 23);
-BENCHMARK_REGISTER_F(Vector3_SSE, vmul_shuffle_add)->RangeMultiplier(2)->Range(8 << 12, 8 << 23);
-BENCHMARK_REGISTER_F(Vector3, ispc_AoS)->RangeMultiplier(2)->Range(8 << 12, 8 << 23);
-BENCHMARK_REGISTER_F(Vector3SoA, ispc_SoA)->RangeMultiplier(2)->Range(8 << 12, 8 << 23);
-BENCHMARK_REGISTER_F(Vector3AoSoA, ispc_AoSoA)->RangeMultiplier(2)->Range(8 << 12, 8 << 23);
-
-// using our own main allows us to do things like change the default time unit
-int main(int argc, char** argv)
-{
-	::benchmark::Initialize(&argc, argv);
-
-	::benchmark::SetDefaultTimeUnit(benchmark::kMillisecond);
-
-	if (::benchmark::ReportUnrecognizedArguments(argc, argv))
-		return 1;
-
-	::benchmark::RunSpecifiedBenchmarks();
-
-	_mm_pause();
-}
-*/
+PICOBENCH(dot_ispc_AoSoA);

@@ -30,23 +30,71 @@
 
 export void AddArrayElements(uniform float output[], const uniform float a[], const uniform float b[], const uniform int64 count)
 {
+    foreach(i = 0 ... count)
+    {
+        output[i] = a[i] + b[i];
+    }
 }
 
 export void SumArray(uniform float& sum_output, const uniform float a[], const uniform int64 count)
 {
+    varying float sum = 0;
+    foreach(i = 0 ... count)
+    {
+        sum += a[i];
+    }
+
+    sum_output = reduce_add(sum);
 }
 
 
 export void MinArray(uniform float& min_output, const uniform float a[], const uniform int64 count)
 {
+    varying float minimum = FLT_MAX;
+
+    foreach(i = 0 ... count)
+    {
+        if( a[i] < minimum )
+        {
+            minimum = a[i];
+        }
+
+
+    }
+
+    min_output = reduce_min(minimum);
 }
 
 
 export void MaxArray(uniform float& max_output, const uniform float a[], const uniform int64 count)
 {
+    varying float maximum = -FLT_MAX;
+
+    foreach(i = 0 ... count)
+    {
+        if( a[i] > maximum )
+        {
+            maximum = a[i];
+        }
+
+
+    }
+
+    max_output = reduce_max(maximum);
 }
 
 
 export void AverageArray(uniform float& avg_output, const uniform float a[], const uniform int64 count)
 {
+
+    varying float sum = 0;
+
+    foreach(i = 0 ... count)
+    {
+        sum += a[i];
+    }
+
+    uniform float sum_reduce = reduce_add(sum);
+
+    avg_output = sum_reduce / (uniform float) count;
 }

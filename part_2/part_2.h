@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <float.h>
 #include "vector3.h"
 
 using std::vector;
