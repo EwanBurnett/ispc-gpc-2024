@@ -41,15 +41,37 @@ export uniform int GetProgramCount()
 
 export void DotProductAoS(uniform float result[], uniform Vector3 vec[], const uniform int64 count)
 {
+    foreach(i = 0 ... count){
+
+        varying float x, y, z; 
+
+        //Load the AoS Vector data out 
+        aos_to_soa3((uniform float* uniform)&vec->x, &x, &y, &z);
+
+        result[i] = x*x + y*y + z*z; 
+    }
 }
 
 
 export void DotProductSoA(uniform float result[], uniform float x[], uniform float y[], uniform float z[], const uniform int64 count)
 {
+    foreach(i = 0 ... count)
+    {
+        //Load the raw SoA data
+        result[i] = x[i] * x[i] + y[i] * y[i] + z[i] * z[i]; 
+    }
 }
 
 
 export void DotProductAoSoA(uniform float result[], uniform float vec[], const uniform int64 count)
 {
-	 varying Vector3 * uniform foo  = (varying Vector3 * uniform)vec;
+    for(uniform int i = 0; i < count; i += programCount * 3)
+    {
+
+        varying float x = vec[i + programCount + 0 * programIndex]; 
+        varying float y = vec[i + programCount + 1 * programIndex]; 
+        varying float z = vec[i + programCount + 2 * programIndex]; 
+
+        result[(i/3) + programIndex] = x*x + y*y + z+z;
+    }
 }

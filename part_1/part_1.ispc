@@ -30,7 +30,7 @@
 
 export void AddArrayElements(uniform float output[], const uniform float a[], const uniform float b[], const uniform int64 count)
 {
-    foreach(i = 0 ... count)
+    foreach(i = 0 ... count)    //foreach is evil, but... it works!
     {
         output[i] = a[i] + b[i];
     }
@@ -39,12 +39,12 @@ export void AddArrayElements(uniform float output[], const uniform float a[], co
 export void SumArray(uniform float& sum_output, const uniform float a[], const uniform int64 count)
 {
     varying float sum = 0;
-    foreach(i = 0 ... count)
+    foreach(i = 0 ... count) //Accumulate the result for each lane
     {
         sum += a[i];
     }
 
-    sum_output = reduce_add(sum);
+    sum_output = reduce_add(sum);//Each lane has its own sum; add all of them together
 }
 
 
@@ -54,7 +54,7 @@ export void MinArray(uniform float& min_output, const uniform float a[], const u
 
     foreach(i = 0 ... count)
     {
-        if( a[i] < minimum )
+        if( a[i] < minimum )    //ISPC handles branching via masks internally!
         {
             minimum = a[i];
         }
@@ -62,7 +62,7 @@ export void MinArray(uniform float& min_output, const uniform float a[], const u
 
     }
 
-    min_output = reduce_min(minimum);
+    min_output = reduce_min(minimum);//Find the minimum of each element in the resultant lane
 }
 
 
