@@ -111,6 +111,7 @@ static void AddArrayElements_ISPC(picobench::state& s)
 	for (int i = 0; i < s.iterations(); ++i)
 	{
 		ispc::AddArrayElements(output.data(), a.data(), b.data(), s.iterations());
+		s.set_result((uintptr_t)&output);
 	}
 
 	s.stop_timer(); // Manual stop

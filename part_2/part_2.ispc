@@ -49,6 +49,7 @@ export void DotProductSoA(uniform float result[], uniform float x[], uniform flo
 }
 
 
-export void DotProductAoSoA(uniform float result[], Vector3 varying * uniform vec[], const uniform int64 count)
+export void DotProductAoSoA(uniform float result[], uniform float vec[], const uniform int64 count)
 {
+	 varying Vector3 * uniform foo  = (varying Vector3 * uniform)vec;
 }

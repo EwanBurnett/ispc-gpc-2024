@@ -31,7 +31,9 @@
 
 #include <vector>
 #include <algorithm>
-#include <cfloat> 
+
+#include <float.h>
+
 
 using std::vector;
 

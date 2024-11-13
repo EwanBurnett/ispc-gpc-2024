@@ -31,16 +31,13 @@ endif()
 
 add_definitions(-DNOMINMAX)
 
-if("${CMAKE_SYSTEM_NAME};${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "Darwin;arm64")
-  set(CMAKE_ISPC_INSTRUCTION_SETS "neon-i32x4")
-else()
-  set(CMAKE_ISPC_INSTRUCTION_SETS "sse2-i32x4;sse4-i32x4;avx1-i32x8;avx2-i32x8;avx512spr-x16")
-endif()
+
 
 add_library(ispc_gpc_2024 INTERFACE)
 add_library(picobench::picobench ALIAS ispc_gpc_2024)
 target_include_directories(ispc_gpc_2024 INTERFACE "external")
+target_compile_options(ispc_gpc_2024 INTERFACE "-march=x86-64-v3")
 
-add_subdirectory(part_1)
+#add_subdirectory(part_1)
 add_subdirectory(part_2)
 #add_subdirectory(rt)
