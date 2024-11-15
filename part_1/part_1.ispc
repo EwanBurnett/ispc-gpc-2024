@@ -28,6 +28,21 @@
 // Simple Iteration and Reductions
 //
 
+
+#if !ISPC
+#error "ISPC compiler not detected!"
+#endif
+
+// Hack around ISPC Compiler's unreliable preprocessor definitions
+#if !FLT_MIN
+#define FLT_MIN 1.17549435082228750796873653722224568e-38F
+#endif
+#if !FLT_MAX
+#define FLT_MAX 3.40282346638528859811704183484516925e+38F
+#endif
+
+
+
 export void AddArrayElements(uniform float output[], const uniform float a[], const uniform float b[], const uniform int64 count)
 {
     foreach(i = 0 ... count)    //foreach is evil, but... it works!

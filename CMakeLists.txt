@@ -22,15 +22,17 @@ if(WIN32)
     endif()
 endif()
 
-if (NOT DEFINED ISPC_EXECUTABLE)
-    find_program (ISPC_EXECUTABLE ispc)
-    if (NOT ISPC_EXECUTABLE)
-        message(FATAL_ERROR "Failed to find ispc" )
-    endif()
-endif()
+# This block is redundant, as CMake will detect the ISPC Compiler...?
+# if (NOT DEFINED ISPC_EXECUTABLE)
+#     find_program (ISPC_EXECUTABLE ispc)
+#     if (NOT ISPC_EXECUTABLE)
+#         message(FATAL_ERROR "Failed to find ispc" )
+#     endif()
+# endif()
+
+message(STATUS "ISPC Executable = ${CMAKE_ISPC_COMPILER}")
 
 add_definitions(-DNOMINMAX)
-
 
 
 add_library(ispc_gpc_2024 INTERFACE)
@@ -38,6 +40,7 @@ add_library(picobench::picobench ALIAS ispc_gpc_2024)
 target_include_directories(ispc_gpc_2024 INTERFACE "external")
 target_compile_options(ispc_gpc_2024 INTERFACE "-march=x86-64-v3")
 
-#add_subdirectory(part_1)
+add_subdirectory(part_1)
 add_subdirectory(part_2)
 #add_subdirectory(rt)
+add_subdirectory(tests)
